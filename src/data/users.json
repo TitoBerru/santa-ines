@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Tito",
+    "role": "admin",
+    "email": "admin@example.com",
+    "password": "password"
+  },
+  {
+    "id": 2,
+    "name": "Andres",
+    "role": "user",
+    "email": "user@example.com",
+    "password": "$2a$10$7EJi9T8QpE9tvwTZVlBGauU2F/jbELlcA5bvE6hQHgOYZemXZTfXa"
+  },
+  {
+    "id": 3,
+    "name": "Martin",
+    "email": "h@h.com",
+    "password": "inicio",
+    "lote": "1",
+    "role": "user"
+  },
+  {
+    "id": 4,
+    "name": "Andrea",
+    "email": "andrea@andrea.com",
+    "password": "inicio",
+    "lote": "102",
+    "role": "user"
+  }
+]

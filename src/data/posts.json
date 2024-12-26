@@ -1,0 +1,115 @@
+[
+  {
+    "id": 1,
+    "title": "Primer Post",
+    "content": "Este es el contenido del post.",
+    "author": "Admin User",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      },
+      {
+        "user": "Juan Perez",
+        "date": "2024-12-23T13:03:15.691Z",
+        "content": "sdafsfaf"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Segundo Post",
+    "content": "Este es el contenido del post.",
+    "author": "Admin User",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Tercer Post",
+    "content": "Este es el contenido del post.",
+    "author": "Admin User",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Cuarto Post",
+    "content": "Este es el contenido del post.",
+    "author": "Admin User",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Quinto Post",
+    "content": "Este es el contenido del post.",
+    "author": "Admin User",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Sexto Post",
+    "content": "Este es el contenido del post.",
+    "author": "toto",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Septimo Post",
+    "content": "Este es el contenido del post.",
+    "author": "tito",
+    "date": "2024-01-01",
+    "comments": [
+      {
+        "user": "Regular User",
+        "date": "2024-01-02",
+        "content": "Este es un comentario."
+      },
+      {
+        "user": "Regular User",
+        "date": "2024-12-23T13:55:06.469Z",
+        "content": "dfasdfas"
+      },
+      {
+        "user": "Regular User",
+        "date": "2024-12-23T14:05:02.056Z",
+        "content": "fdfsgdsf"
+      }
+    ]
+  }
+]
