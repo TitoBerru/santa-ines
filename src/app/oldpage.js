@@ -2,132 +2,94 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
-  const [posts, setPosts] = useState([]);
+  const { isAuthenticated } = useAuth();
   const [user, setUser] = useState(null);
-  const [newComment, setNewComment] = useState("");
-  const [currentPostId, setCurrentPostId] = useState(null);
+  const [posts, setPosts] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      router.push("/login");
-    } else {
+    if (storedUser) {
       setUser(JSON.parse(storedUser));
+      // Obtener los posts
       fetch("/api/posts")
         .then((res) => res.json())
         .then((data) => setPosts(data.posts || []));
     }
-  }, [router]);
-
-  const handleCommentSubmit = async (postId) => {
-    if (!newComment) return;
-
-    try {
-      const response = await fetch("/api/posts/comments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          postId,
-          user: user.name,
-          content: newComment,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert("Comentario agregado");
-        setNewComment("");
-        setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post.id === postId
-              ? { ...post, comments: [...post.comments, data.comment] }
-              : post
-          )
-        );
-      } else {
-        alert(data.error);
-      }
-    } catch (err) {
-      alert("Error al agregar el comentario");
-    }
-  };
+  }, []);
 
   if (!user) {
-    return <p>Cargando...</p>;
+    return (
+      <div className="home-container">
+        <h1>Bienvenido a la App de Posts</h1>
+        <p>Por favor, inicia sesión para visualizar los posts y comentarios.</p>
+        <Link href="/login">
+          <button>Iniciar Sesión</button>
+        </Link>
+        <style jsx>{`
+          .home-container {
+            text-align: center;
+            padding: 50px;
+          }
+          button {
+            padding: 10px 20px;
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
     <div className="home-container">
       <h1>Bienvenido, {user.name}</h1>
       <h2>Posts</h2>
-      <ul>
+      <div className="posts-grid">
         {posts.map((post) => (
-          <li key={post.id}>
+          <div
+            key={post.id}
+            className="post-card"
+            onClick={() => router.push(`/posts/${post.id}`)}
+          >
             <h3>{post.title}</h3>
-            <p>{post.content}</p>
+            <p><strong>Autor:</strong> {post.author}</p>
+            <p><strong>Fecha:</strong> {new Date(post.date).toLocaleString()}</p>
             <p>
-              <strong>Fecha:</strong> {new Date(post.date).toLocaleString()}
+              <strong>Último comentario:</strong>{" "}
+              {post.comments.length > 0
+                ? post.comments[post.comments.length - 1].content
+                : "Sin comentarios"}
             </p>
-            <p>
-              <strong>Autor:</strong> {post.author}
-            </p>
-            <div>
-              <h4>Comentarios:</h4>
-              <ul>
-                {post.comments.map((comment, index) => (
-                  <li key={index}>
-                    <p>{comment.content}</p>
-                    <p>
-                      <small>
-                        Por {comment.user} el{" "}
-                        {new Date(comment.date).toLocaleString()}
-                      </small>
-                    </p>
-                  </li>
-                ))}
-              </ul>
-              {user && (
-                <div className="comment-form">
-                  <textarea
-                    placeholder="Escribe un comentario..."
-                    value={currentPostId === post.id ? newComment : ""}
-                    onChange={(e) => {
-                      setCurrentPostId(post.id);
-                      setNewComment(e.target.value);
-                    }}
-                  ></textarea>
-                  <button onClick={() => handleCommentSubmit(post.id)}>
-                    Agregar Comentario
-                  </button>
-                </div>
-              )}
-            </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
       <style jsx>{`
         .home-container {
           padding: 20px;
         }
-        ul {
-          list-style: none;
-          padding: 0;
+        .posts-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
         }
-        li {
-          margin-bottom: 20px;
-          border-bottom: 1px solid #ddd;
-          padding-bottom: 20px;
+        .post-card {
+          border: 1px solid #ddd;
+          padding: 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          background-color:rgb(200, 21, 21);
+          transition: box-shadow 0.3s ease;
         }
-        .comment-form {
-          margin-top: 10px;
-        }
-        textarea {
-          width: 100%;
-          height: 50px;
-          margin-bottom: 10px;
+        .post-card:hover {
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
       `}</style>
     </div>

@@ -27,7 +27,7 @@ export default function Posts() {
       {user && (
         <div className="user-info">
           <img
-            src="/avatar-placeholder.png"
+            src="/img/avatars/avatar-placeholder.png"
             alt="Avatar"
             className="avatar"
             title={`Usuario: ${user.name}`}

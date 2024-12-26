@@ -28,5 +28,13 @@
     "password": "inicio",
     "lote": "102",
     "role": "user"
+  },
+  {
+    "id": 5,
+    "name": "Polaco",
+    "email": "polaco@polaco.com",
+    "password": "polaco",
+    "lote": "120",
+    "role": "user"
   }
 ]

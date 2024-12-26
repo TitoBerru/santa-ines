@@ -3,24 +3,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "./../context/AuthContext";
 
 export default function Home() {
-  const [user, setUser] = useState(null);
+  const { isAuthenticated } = useAuth();
   const [posts, setPosts] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (isAuthenticated) {
       // Obtener los posts
       fetch("/api/posts")
         .then((res) => res.json())
         .then((data) => setPosts(data.posts || []));
+    } else {
+      setPosts([]); // Limpia los posts si el usuario no está autenticado
     }
-  }, []);
+  }, [isAuthenticated]);
 
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <div className="home-container">
         <h1>Bienvenido a la App de Posts</h1>
@@ -48,7 +49,7 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      <h1>Bienvenido, {user.name}</h1>
+      <h1>Bienvenido</h1>
       <h2>Posts</h2>
       <div className="posts-grid">
         {posts.map((post) => (
@@ -83,7 +84,7 @@ export default function Home() {
           padding: 20px;
           border-radius: 5px;
           cursor: pointer;
-          background-color:rgb(200, 21, 21);
+          background-color: rgb(200, 21, 21);
           transition: box-shadow 0.3s ease;
         }
         .post-card:hover {
