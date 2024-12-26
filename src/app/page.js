@@ -8,11 +8,14 @@ import { useAuth } from "./../context/AuthContext";
 export default function Home() {
   const { isAuthenticated } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [userName, setUserName] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated) {
       // Obtener los posts
+      const storedUser = JSON.parse(localStorage.getItem("user")); 
+      setUserName(storedUser.name);
       fetch("/api/posts")
         .then((res) => res.json())
         .then((data) => setPosts(data.posts || []));
@@ -50,7 +53,8 @@ export default function Home() {
   return (
     <div className="home-container">
       <h1>Bienvenido</h1>
-      <h2>Posts</h2>
+      <h2>Hola, {userName} estos son los ultimos posts!</h2>
+   
       <div className="posts-grid">
         {posts.map((post) => (
           <div

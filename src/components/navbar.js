@@ -26,7 +26,8 @@ export default function Navbar() {
       </ul>
       {isAuthenticated && (
         <img src="/img/avatars/avatar-placeholder.png" alt="User Avatar" className={styles.avatar} />
-      )}
+      
+      ) && <p>texto prueba</p>}
     </nav>
   );
 }
