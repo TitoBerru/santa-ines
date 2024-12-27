@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
-export default function PostDetail({ params }) {
+export default function PostDetail() {
+  const params = useParams(); // Usa el hook para obtener el parámetro `id`
   const { id } = params;
   const [post, setPost] = useState(null);
   const [newComment, setNewComment] = useState("");
@@ -30,7 +31,7 @@ export default function PostDetail({ params }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          postId: id,
+          postId: post.id,
           user: user.name,
           content: newComment,
         }),
@@ -57,8 +58,12 @@ export default function PostDetail({ params }) {
   return (
     <div className="post-detail">
       <h1>{post.title}</h1>
-      <p><strong>Autor:</strong> {post.author}</p>
-      <p><strong>Fecha:</strong> {new Date(post.date).toLocaleString()}</p>
+      <p>
+        <strong>Autor:</strong> {post.author}
+      </p>
+      <p>
+        <strong>Fecha:</strong> {new Date(post.date).toLocaleString()}
+      </p>
       <p>{post.content}</p>
       <h3>Comentarios</h3>
       <ul>

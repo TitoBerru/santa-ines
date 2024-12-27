@@ -4,94 +4,176 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
+import { Container, Typography, Grid, Box, Card, CardContent, Button, TextField } from "@mui/material";
+import Image from "next/image";
+import Navbar from "@/components/Navbar"; // Importa el Navbar
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
-  const [user, setUser] = useState(null);
+  const { isAuthenticated, login } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      // Obtener los posts
+    if (isAuthenticated) {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      setUserName(storedUser.name);
       fetch("/api/posts")
         .then((res) => res.json())
         .then((data) => setPosts(data.posts || []));
+    } else {
+      setPosts([]);
     }
-  }, []);
+  }, [isAuthenticated]);
 
-  if (!user) {
-    return (
-      <div className="home-container">
-        <h1>Bienvenido a la App de Posts</h1>
-        <p>Por favor, inicia sesión para visualizar los posts y comentarios.</p>
-        <Link href="/login">
-          <button>Iniciar Sesión</button>
-        </Link>
-        <style jsx>{`
-          .home-container {
-            text-align: center;
-            padding: 50px;
-          }
-          button {
-            padding: 10px 20px;
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-        `}</style>
-      </div>
-    );
-  }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        login();
+        alert("Inicio de sesión exitoso");
+        router.push("/");
+      } else {
+        setError(data.error);
+        localStorage.removeItem("user");
+      }
+    } catch (err) {
+      setError("Error al iniciar sesión");
+      localStorage.removeItem("user");
+    }
+  };
 
   return (
-    <div className="home-container">
-      <h1>Bienvenido, {user.name}</h1>
-      <h2>Posts</h2>
-      <div className="posts-grid">
-        {posts.map((post) => (
-          <div
-            key={post.id}
-            className="post-card"
-            onClick={() => router.push(`/posts/${post.id}`)}
-          >
-            <h3>{post.title}</h3>
-            <p><strong>Autor:</strong> {post.author}</p>
-            <p><strong>Fecha:</strong> {new Date(post.date).toLocaleString()}</p>
-            <p>
-              <strong>Último comentario:</strong>{" "}
-              {post.comments.length > 0
-                ? post.comments[post.comments.length - 1].content
-                : "Sin comentarios"}
-            </p>
-          </div>
-        ))}
-      </div>
-      <style jsx>{`
-        .home-container {
-          padding: 20px;
-        }
-        .posts-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 20px;
-        }
-        .post-card {
-          border: 1px solid #ddd;
-          padding: 20px;
-          border-radius: 5px;
-          cursor: pointer;
-          background-color:rgb(200, 21, 21);
-          transition: box-shadow 0.3s ease;
-        }
-        .post-card:hover {
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-      `}</style>
-    </div>
+    <>
+      {isAuthenticated && <Navbar />} {/* Mostrar el Navbar solo si está autenticado */}
+      <Container
+        maxWidth={!isAuthenticated ? "sm" : "lg"} /* Ajustar tamaño del contenedor */
+        style={{
+          textAlign: "center",
+          padding: "50px",
+          backgroundColor: !isAuthenticated ? "rgba(255, 245, 238, 0.9)" : "rgba(240, 255, 240, 0.9)", // Fondo pastel con transparencia
+          borderRadius: "18px",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+          marginTop: !isAuthenticated ? "100px" : "50px", // Ajustar margen superior
+          position: "relative", // Añadir posición relativa
+        }}
+      >
+        {!isAuthenticated ? (
+          <>
+            <div className="logo-container">
+              <Image src="/img/logo.webp" alt="Logo" width={100} height={100} className="logo" />
+            </div>
+            <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
+              Bienvenido a Santa Ines
+            </Typography>
+            <Typography variant="body1" gutterBottom style={{ color: "#555" }}>
+              Por favor, inicia sesión para visualizar los temas del dia.
+            </Typography>
+            {error && <Typography variant="body1" style={{ color: 'red', marginBottom: "20px" }}>{error}</Typography>}
+            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <TextField
+                type="email"
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                variant="outlined"
+                style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
+              />
+              <TextField
+                type="password"
+                label="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                variant="outlined"
+                style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                style={{
+                  backgroundColor: "#88cc88", // Color pastel verde
+                  color: "#fff",
+                  padding: "10px 20px",
+                  fontWeight: "bold",
+                }}
+              >
+                Iniciar Sesión
+              </Button>
+              <div className="footer-text" style={{ 
+                backgroundColor: "rgba(220, 220, 220, 0.5)", // Fondo diferencial
+                borderRadius: "10px",
+                marginTop: "30px", // Separación del botón
+                padding: "10px 20px",
+                width: "100%",
+                textAlign: "center",
+              }}>
+                <Link href="/register" style={{ textDecoration: 'none', color: '#555' }}>
+                  No tengo usuario
+                </Link>
+              </div>
+            </form>
+          </>
+        ) : (
+          <>
+            <Box display="flex" alignItems="center" mb={3}>
+              <Typography variant="h6" component="h2" ml={2} style={{ color: "#333", fontWeight: "bold" }}>
+                Hola, {userName}, estos son los temas del dia!
+              </Typography>
+            </Box>
+            <Grid container spacing={3}>
+              {posts.map((post) => (
+                <Grid item xs={12} sm={6} md={4} key={post.id}>
+                  <Card
+                    style={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      cursor: "pointer",
+                      height: "250px", // Altura fija para la tarjeta
+                      overflow: "hidden",
+                    }}
+                    onClick={() => router.push(`/posts/${post.id}`)}
+                  >
+                    <CardContent>
+                      <Typography variant="h6" component="h3" gutterBottom style={{ color: "#333" }}>
+                        {post.title}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" style={{ color: "#555" }}>
+                        <strong>Autor:</strong> {post.author}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" style={{ color: "#555" }}>
+                        <strong>Fecha:</strong> {new Date(post.date).toLocaleString()}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" style={{ color: "#777", height: "50px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                        <strong>Último comentario:</strong>{" "}
+                        {post.comments.length > 0
+                          ? post.comments[post.comments.length - 1].content
+                          : "Sin comentarios"}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )}
+      </Container>
+    </>
   );
 }

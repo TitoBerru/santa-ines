@@ -1,0 +1,20 @@
+/* Footer.module.css */
+.footer {
+  background-color: #f0f2f5; /* Fondo suave */
+  color: #555; /* Color de texto */
+  padding: 10px; /* Reducimos el padding */
+  text-align: center;
+  border-top: 1px solid #ddd;
+  font-size: 12px; /* Reducimos el tamaño de la fuente */
+  width: 100%;
+
+
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.footer p {
+  margin: 3px 0; /* Reducimos el margen */
+}

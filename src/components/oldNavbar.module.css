@@ -1,6 +1,6 @@
 /* Navbar.module.css */
 .navbar {
-  background: #f0f2f5;  /* Color pastel azul/celeste */
+  background: #89c4f4; /* Color pastel azul/celeste */
   color: #fff;
   padding: 15px;
   display: flex;
@@ -15,7 +15,7 @@
 
 .navContainer {
   display: flex;
-  justify-content: center; /* Centrar los enlaces */
+  justify-content: center;
   align-items: center;
   width: 100%;
   max-width: 1200px;
@@ -49,10 +49,14 @@
   color: #555; /* Color de hover */
 }
 
-.userName {
-  color: #333;
-  font-weight: bold;
-  margin-left: 20px;
-  display: flex;
-  align-items: center;
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: auto;
+  border: 2px solid #fff; /* Añadir borde blanco */
+}
+
+.avatar:hover {
+  border: 2px solid #555; /* Cambiar el color del borde al pasar el mouse */
 }

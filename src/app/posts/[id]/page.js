@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { Container, Typography, Box, TextField, Button, Card, CardContent, Grid } from '@mui/material';
 
 export default function PostDetail() {
   const params = useParams(); // Usa el hook para obtener el parámetro `id`
@@ -53,58 +54,91 @@ export default function PostDetail() {
     }
   };
 
-  if (!post) return <p>Cargando...</p>;
+  if (!post) return <Typography variant="h6" color="textSecondary">Cargando...</Typography>;
 
   return (
-    <div className="post-detail">
-      <h1>{post.title}</h1>
-      <p>
+    <Container
+      maxWidth="md"
+      style={{
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        padding: "20px",
+        borderRadius: "12px",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        marginTop: "50px",
+      }}
+    >
+      <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
+        {post.title}
+      </Typography>
+      <Typography variant="body1" color="textSecondary" style={{ marginBottom: "10px" }}>
         <strong>Autor:</strong> {post.author}
-      </p>
-      <p>
+      </Typography>
+      <Typography variant="body1" color="textSecondary" style={{ marginBottom: "20px" }}>
         <strong>Fecha:</strong> {new Date(post.date).toLocaleString()}
-      </p>
-      <p>{post.content}</p>
-      <h3>Comentarios</h3>
-      <ul>
+      </Typography>
+      <Typography variant="body1" style={{ marginBottom: "20px" }}>
+        {post.content}
+      </Typography>
+      
+      <Typography variant="h5" component="h3" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
+        Comentarios
+      </Typography>
+      <Grid container spacing={3} style={{ marginBottom: "20px" }}>
         {post.comments.map((comment, index) => (
-          <li key={index}>
-            <p>{comment.content}</p>
-            <p>
-              <small>
-                Por {comment.user} el{" "}
-                {new Date(comment.date).toLocaleString()}
-              </small>
-            </p>
-          </li>
+          <Grid item xs={12} key={index}>
+            <Card style={{ backgroundColor: "rgba(240, 255, 240, 0.9)", borderRadius: "8px" }}>
+              <CardContent>
+                <Typography variant="body1" gutterBottom style={{ color: "#555" }}>
+                  {comment.content}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" style={{ color: "#777" }}>
+                  Por {comment.user} el {new Date(comment.date).toLocaleString()}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </ul>
-      <textarea
-        placeholder="Escribe un comentario..."
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
-      ></textarea>
-      <button onClick={handleCommentSubmit}>Agregar Comentario</button>
-      <button onClick={() => router.push("/")}>Volver a Home</button>
-      <style jsx>{`
-        .post-detail {
-          padding: 20px;
-        }
-        textarea {
-          width: 100%;
-          margin-top: 20px;
-          height: 60px;
-        }
-        button {
-          margin: 10px;
-          padding: 10px 20px;
-          border: none;
-          background-color: #0070f3;
-          color: white;
-          cursor: pointer;
-          border-radius: 5px;
-        }
-      `}</style>
-    </div>
+      </Grid>
+      
+      {user && (
+        <Box>
+          <Typography variant="h6" component="h4" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
+            Agregar Comentario
+          </Typography>
+          <TextField
+            fullWidth
+            placeholder="Escribe un comentario..."
+            multiline
+            minRows={3}
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            variant="outlined"
+            style={{ backgroundColor: "#ffffff", marginBottom: "20px" }}
+          />
+          <Button
+            variant="contained"
+            style={{
+              backgroundColor: "#88cc88", // Color pastel verde
+              color: "#fff",
+              marginRight: "10px",
+            }}
+            onClick={handleCommentSubmit}
+          >
+            Agregar Comentario
+          </Button>
+          <Button
+            variant="contained"
+            style={{
+              backgroundColor: "#ffcc88", // Color pastel naranja
+              color: "#fff",
+            }}
+            onClick={() => router.push("/")}
+          >
+            Volver a Home
+          </Button>
+        </Box>
+      )}
+    </Container>
   );
 }

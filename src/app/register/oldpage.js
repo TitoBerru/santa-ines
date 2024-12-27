@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container, Typography, TextField, Button } from "@mui/material";
 
+
+
 export default function Register() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -15,13 +17,6 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validación del campo Lote
-    const loteNumber = parseInt(form.lote, 10);
-    if (isNaN(loteNumber) || loteNumber < 1 || loteNumber > 550) {
-      alert("El número de Lote debe estar entre 1 y 550");
-      return;
-    }
-
     try {
       const response = await fetch("/api/users/register", {
         method: "POST",
@@ -30,13 +25,13 @@ export default function Register() {
       });
       const data = await response.json();
       if (response.ok) {
-        router.push("/");
         alert("Registro exitoso");
+        router.push("/");
       } else {
         alert(data.error);
       }
     } catch (err) {
-      alert("Ocurrió un error");
+      alert("Ocurrió un error", err);
     }
   };
 
@@ -72,13 +67,12 @@ export default function Register() {
         />
         <TextField
           type="text"
-          label="Ingrese su numero de lote"
+          label="Lote"
           value={form.lote}
           onChange={(e) => setForm({ ...form, lote: e.target.value })}
           required
           variant="outlined"
           style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
-          inputProps={{ pattern: "[0-9]*" }}
         />
         <TextField
           type="email"
