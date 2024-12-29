@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from "next/navigation";
-import { Container, Typography, TextField, Button, Box } from "@mui/material";
+import { Container, Typography, TextField, Button } from "@mui/material";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -26,16 +26,36 @@ export default function Login() {
       if (response.ok) {
         // Guardar usuario autenticado en localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
-        login(); // Actualizar estado de autenticación
+        login(data.user); // Actualizar estado de autenticación
         alert("Inicio de sesión exitoso");
         router.push("/"); // Redirigir a la página principal
       } else {
-        setError(data.error); // Mostrar mensaje de error
+        handleFirebaseError(data.error); // Manejar error de Firebase
         localStorage.removeItem("user"); // Asegurarse de que no se guarde un usuario no autenticado
       }
     } catch (err) {
+      console.log(err);
       setError("Error al iniciar sesión");
       localStorage.removeItem("user"); // Asegurarse de que no se guarde un usuario no autenticado
+    }
+  };
+
+  const handleFirebaseError = (errorCode) => {
+    switch (errorCode) {
+      case 'auth/invalid-credential':
+        setError('Credenciales inválidas. Por favor, verifica tu información.');
+        break;
+      case 'auth/user-not-found':
+        setError('Usuario no encontrado. Por favor, verifica tu email.');
+        break;
+      case 'auth/wrong-password':
+        setError('Contraseña incorrecta. Por favor, intenta de nuevo.');
+        break;
+      case 'auth/missing-fields':
+        setError('Faltan campos obligatorios. Por favor, completa todos los campos.');
+        break;
+      default:
+        setError('Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.');
     }
   };
 

@@ -9,19 +9,21 @@ export async function POST(req) {
 
     if (!email || !password) {
       return new Response(
-        JSON.stringify({ success: false, error: "auth/missing-fields" }),
+        JSON.stringify({ success: false, error: "Email y contraseña son obligatorios" }),
         { status: 400 }
       );
     }
 
+    // Autenticar al usuario con Firebase Auth
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
+    // Obtener información adicional del usuario desde Firestore
     const userDocRef = doc(db, "users", user.uid);
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-      throw new Error("auth/user-not-found");
+      throw new Error("Usuario no encontrado en Firestore");
     }
 
     const userData = userDoc.data();
@@ -38,7 +40,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error al iniciar sesión del usuario:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.code || "auth/internal-error" }),
+      JSON.stringify({ success: false, error: error.code || "Error interno del servidor" }),
       { status: 500 }
     );
   }

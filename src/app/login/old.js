@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from "next/navigation";
+import { Container, Typography, TextField, Button } from "@mui/material";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,11 +26,11 @@ export default function Login() {
       if (response.ok) {
         // Guardar usuario autenticado en localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
-        login(); // Actualizar estado de autenticación
+        login(data.user); // Actualizar estado de autenticación
         alert("Inicio de sesión exitoso");
         router.push("/"); // Redirigir a la página principal
       } else {
-        setError(data.error); // Mostrar mensaje de error
+        handleFirebaseError(data.error); // Manejar error de Firebase
         localStorage.removeItem("user"); // Asegurarse de que no se guarde un usuario no autenticado
       }
     } catch (err) {
@@ -38,27 +39,71 @@ export default function Login() {
     }
   };
 
+  const handleFirebaseError = (errorCode) => {
+    switch (errorCode) {
+      case 'auth/invalid-credential':
+        setError('Credenciales inválidas. Por favor, verifica tu información.');
+        break;
+      case 'auth/user-not-found':
+        setError('Usuario no encontrado. Por favor, verifica tu email.');
+        break;
+      case 'auth/wrong-password':
+        setError('Contraseña incorrecta. Por favor, intenta de nuevo.');
+        break;
+      default:
+        setError('Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.');
+    }
+  };
+
   return (
-    <div>
-      <h1>Login</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleLogin}>
-        <input
+    <Container
+      maxWidth="sm"
+      style={{
+        textAlign: "center",
+        padding: "50px",
+        backgroundColor: "rgba(240, 255, 255, 0.9)", // Fondo pastel con transparencia
+        borderRadius: "18px",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+        marginTop: "100px",
+      }}
+    >
+      <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
+        Iniciar Sesión
+      </Typography>
+      {error && <Typography variant="body1" style={{ color: 'red', marginBottom: "20px" }}>{error}</Typography>}
+      <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <TextField
           type="email"
-          placeholder="Email"
+          label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          variant="outlined"
+          style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
         />
-        <input
+        <TextField
           type="password"
-          placeholder="Contraseña"
+          label="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          variant="outlined"
+          style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
         />
-        <button type="submit">Iniciar Sesión</button>
+        <Button
+          type="submit"
+          variant="filled"
+          style={{
+            backgroundColor: "#88cc88", // Color pastel verde
+            color: "#fff",
+            padding: "10px 20px",
+            fontWeight: "bold",
+          }}
+        >
+          Iniciar Sesión
+        </Button>
       </form>
-    </div>
+    </Container>
   );
 }

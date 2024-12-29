@@ -1,58 +1,156 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from '../../context/AuthContext';
+import { Container, Typography, TextField, Button, Card, CardContent } from "@mui/material";
+import styles from './Posts.module.css';
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"; 
+import { db } from '../../firebase/config';
 
 export default function Posts() {
-  const [user, setUser] = useState(null); // Usuario autenticado
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
   useEffect(() => {
-    // Simula obtener datos de usuario autenticado (puede ser desde un estado global o localStorage)
-    const userData = {
-      name: "Admin User",
-      email: "admin@example.com",
+    const fetchPosts = async () => {
+      const postRef = collection(db, "POSTS");
+      const postSnapshot = await getDocs(postRef);
+      setPosts(postSnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+        date: doc.data().date && doc.data().date.seconds ? new Date(doc.data().date.seconds * 1000) : null
+      })));
     };
-    setUser(userData);
 
-    // Simula obtener datos de posts (puedes reemplazar esto con datos reales más adelante)
-    setPosts([
-      { id: 1, title: "Primer Post", content: "Contenido del primer post." },
-      { id: 2, title: "Segundo Post", content: "Contenido del segundo post." },
-    ]);
+    fetchPosts().catch((error) => console.error('Error fetching posts:', error));
   }, []);
 
+  const handleAddPost = async () => {
+    if (!title || !content) {
+      alert("Por favor, complete todos los campos.");
+      return;
+    }
+
+    const newPost = {
+      title,
+      content,
+      date: new Date(), // Agrega la fecha actual al nuevo post
+      author: user.name,
+      comments: []
+    };
+
+    try {
+      const postRef = collection(db, "POSTS");
+      const docRef = await addDoc(postRef, newPost);
+      setPosts([...posts, { ...newPost, id: docRef.id }]);
+      setTitle("");
+      setContent("");
+    } catch (err) {
+      console.error("Error al agregar el post:", err);
+      alert("Error al agregar el post: " + err.message);
+    }
+  };
+
+  const handleDeletePost = async (id) => {
+    try {
+      const postRef = doc(db, "POSTS", id);
+      await deleteDoc(postRef);
+      setPosts(posts.filter(post => post.id !== id));
+    } catch (err) {
+      console.error("Error al eliminar el post:", err);
+      alert("Error al eliminar el post: " + err.message);
+    }
+  };
+
+  if (!user || user.role !== 'admin') {
+    return <Typography variant="h6" component="h2" style={{ color: 'red' }}>No tiene acceso a esta página.</Typography>;
+  }
+
   return (
-    <div className="posts-container">
-      <h1>Posts</h1>
-      {user && (
-        <div className="user-info">
-        </div>
-      )}
-      <ul>
-        {posts.map((post) => (
+    <Container
+      maxWidth="lg"
+      style={{
+        textAlign: "center",
+        padding: "50px",
+        backgroundColor: "rgba(240, 255, 240, 0.9)", // Fondo pastel con transparencia
+        borderRadius: "18px",
+        backdropFilter: "blur(10px)",
+        marginTop: "50px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+      }}
+    >
+      <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
+        Administrar Posts
+      </Typography>
+      <div className={styles.formContainer}>
+        <TextField
+          label="Título"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          variant="outlined"
+          style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
+        />
+        <TextField
+          label="Contenido"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          variant="outlined"
+          multiline
+          rows={4}
+          style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
+        />
+        <Button
+          variant="contained"
+          onClick={handleAddPost}
+          style={{
+            backgroundColor: "#88cc88", // Color pastel verde
+            color: "#fff",
+            padding: "10px 20px",
+            fontWeight: "bold",
+          }}
+        >
+          Agregar Post
+        </Button>
+      </div>
+      <ul className={styles.postsList}>
+        {posts.map(post => (
           <li key={post.id}>
-            <h2>{post.title}</h2>
-            <p>{post.content}</p>
+            <Card
+              style={{
+                backgroundColor: "#fff",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                marginBottom: "20px",
+                overflow: "hidden",
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" component="h3" style={{ color: "#333" }}>
+                  {post.title}
+                </Typography>
+                <Typography variant="body1" style={{ color: "#555" }}>
+                  {post.content}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleDeletePost(post.id)}
+                  style={{
+                    marginTop: "10px",
+                    backgroundColor: "#ff8888", // Color pastel rojo
+                    color: "#fff",
+                  }}
+                >
+                  Eliminar
+                </Button>
+              </CardContent>
+            </Card>
           </li>
         ))}
       </ul>
-      <style jsx>{`
-        .posts-container { /* Estilos generales */ }
-        .user-info {
-          position: fixed;
-          bottom: 20px;
-          left: 20px;
-          display: flex;
-          align-items: center;
-        }
-        .avatar {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          cursor: pointer;
-        }
-        .avatar:hover { opacity: 0.8; }
-      `}</style>
-    </div>
+    </Container>
   );
 }

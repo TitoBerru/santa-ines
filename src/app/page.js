@@ -7,6 +7,9 @@ import { useAuth } from "../context/AuthContext";
 import { Container, Typography, Grid, Box, Card, CardContent, Button, TextField } from "@mui/material";
 import Image from "next/image";
 import Navbar from "@/components/Navbar"; // Importa el Navbar
+import { collection, getDocs, orderBy, query } from "firebase/firestore"; 
+import { db } from '../firebase/config';
+import { format } from 'date-fns'; // Importa la librería date-fns
 
 export default function Home() {
   const { isAuthenticated, login } = useAuth();
@@ -21,12 +24,35 @@ export default function Home() {
     if (isAuthenticated) {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
+        try{
+          const parsedUser = JSON.parse(storedUser);
         setUserName(parsedUser.name);
+        } catch (error){
+          console.error('Error al parsear el usuario almacenado:', error); // Maneja el caso en el que el JSON es inválido o no se puede parsear 
+         localStorage.removeItem("user");
+        }
+        
       }
-      fetch("/api/posts")
-        .then((res) => res.json())
-        .then((data) => setPosts(data.posts || []));
+
+      const postRef = collection(db, "POSTS");
+      const postQuery = query(postRef, orderBy("date", "desc")); // Ordena por fecha descendente
+      getDocs(postQuery)
+        .then((resp) => {
+          setPosts(
+            resp.docs.map((doc) => {
+              const data = doc.data();
+              return {
+                ...data,
+                id: doc.id,
+                date: data.date && data.date.seconds ? new Date(data.date.seconds * 1000) : null,
+                comments: data.comments ? data.comments.map(comment => ({
+                  ...comment,
+                  date: comment.date && comment.date.seconds ? new Date(comment.date.seconds * 1000) : null
+                })) : []
+              };
+            })
+          );
+        });
     } else {
       setPosts([]);
     }
@@ -162,7 +188,7 @@ export default function Home() {
                         <strong>Autor:</strong> {post.author}
                       </Typography>
                       <Typography variant="body2" style={{ color: "#555" }}>
-                        <strong>Fecha:</strong> {new Date(post.date).toLocaleString()}
+                        <strong>Fecha:</strong> {post.date ? format(post.date, 'dd/MM/yyyy HH:mm:ss') : 'Fecha no disponible'}
                       </Typography>
                       <Typography variant="body2" style={{ color: "#777", height: "50px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                         <strong>Último comentario:</strong>{" "}

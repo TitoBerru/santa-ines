@@ -3,29 +3,43 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Container, Typography, Box, TextField, Button, Card, CardContent, Grid } from '@mui/material';
+import { format } from 'date-fns';
 
 export default function PostDetail() {
-  const params = useParams(); // Usa el hook para obtener el parámetro `id`
+  const params = useParams();
+  const router = useRouter();
   const { id } = params;
+
   const [post, setPost] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      router.push("/login");
-    } else {
-      setUser(JSON.parse(storedUser));
-      fetch(`/api/posts/${id}`)
-        .then((res) => res.json())
-        .then((data) => setPost(data.post));
+    if (params) {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        router.push("/login");
+      } else {
+        setUser(JSON.parse(storedUser));
+        fetch(`/api/posts/${id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            // Convierte el Timestamp a una fecha de JavaScript
+            if (data.date && data.date.seconds) {
+              data.date = new Date(data.date.seconds * 1000);
+            }
+            setPost(data);
+          })
+          .catch((err) => console.error("Error fetching post:", err));
+      }
     }
-  }, [id, router]);
+  }, [params, id, router]);
 
   const handleCommentSubmit = async () => {
-    if (!newComment) return;
+    if (!newComment || post.commentsClosed) {
+      alert(post.commentsClosed ? "Los comentarios están cerrados para este post." : "Por favor, ingrese un comentario.");
+      return;
+    }
 
     try {
       const response = await fetch("/api/posts/comments", {
@@ -75,7 +89,7 @@ export default function PostDetail() {
         <strong>Autor:</strong> {post.author}
       </Typography>
       <Typography variant="body1" color="textSecondary" style={{ marginBottom: "20px" }}>
-        <strong>Fecha:</strong> {new Date(post.date).toLocaleString()}
+        <strong>Fecha:</strong> {post.date ? format(new Date(post.date), 'dd/MM/yyyy HH:mm:ss') : 'Fecha no disponible'}
       </Typography>
       <Typography variant="body1" style={{ marginBottom: "20px" }}>
         {post.content}
@@ -85,7 +99,7 @@ export default function PostDetail() {
         Comentarios
       </Typography>
       <Grid container spacing={3} style={{ marginBottom: "20px" }}>
-        {post.comments.map((comment, index) => (
+        {post.comments && post.comments.map((comment, index) => (
           <Grid item xs={12} key={index}>
             <Card style={{ backgroundColor: "rgba(240, 255, 240, 0.9)", borderRadius: "8px" }}>
               <CardContent>
@@ -93,7 +107,7 @@ export default function PostDetail() {
                   {comment.content}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" style={{ color: "#777" }}>
-                  Por {comment.user} el {new Date(comment.date).toLocaleString()}
+                  Por {comment.user} el {comment.date && comment.date.seconds ? format(new Date(comment.date.seconds * 1000), 'dd/MM/yyyy HH:mm:ss') : 'Fecha no disponible'}
                 </Typography>
               </CardContent>
             </Card>
@@ -101,7 +115,7 @@ export default function PostDetail() {
         ))}
       </Grid>
       
-      {user && (
+      {user && !post.commentsClosed && (
         <Box>
           <Typography variant="h6" component="h4" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
             Agregar Comentario
@@ -138,6 +152,12 @@ export default function PostDetail() {
             Volver a Home
           </Button>
         </Box>
+      )}
+      
+      {post.commentsClosed && (
+        <Typography variant="body1" color="textSecondary" style={{ marginTop: "20px" }}>
+          Los comentarios están cerrados para este post.
+        </Typography>
       )}
     </Container>
   );

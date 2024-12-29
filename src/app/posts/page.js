@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from '../../context/AuthContext';
 import { Container, Typography, TextField, Button, Card, CardContent } from "@mui/material";
 import styles from './Posts.module.css';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore"; 
+import { db } from '../../firebase/config';
 
 export default function Posts() {
   const { user } = useAuth();
@@ -12,15 +14,18 @@ export default function Posts() {
   const [content, setContent] = useState("");
 
   useEffect(() => {
-    fetch('/api/posts')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error fetching posts');
-        }
-        return response.json();
-      })
-      .then(data => setPosts(data.posts))
-      .catch(error => console.error('Error fetching posts:', error));
+    const fetchPosts = async () => {
+      const postRef = collection(db, "POSTS");
+      const postSnapshot = await getDocs(postRef);
+      setPosts(postSnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+        date: doc.data().date && doc.data().date.seconds ? new Date(doc.data().date.seconds * 1000) : null,
+        commentsClosed: doc.data().commentsClosed || false,
+      })));
+    };
+
+    fetchPosts().catch((error) => console.error('Error fetching posts:', error));
   }, []);
 
   const handleAddPost = async () => {
@@ -28,24 +33,20 @@ export default function Posts() {
       alert("Por favor, complete todos los campos.");
       return;
     }
-    const newPost = { title, content };
+
+    const newPost = {
+      title,
+      content,
+      date: new Date(), // Agrega la fecha actual al nuevo post
+      author: user.name,
+      comments: [],
+      commentsClosed: false, // Inicialmente los comentarios están abiertos
+    };
 
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newPost)
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error adding post:', errorData);
-        alert("Error al agregar el post: " + errorData.message);
-        return;
-      }
-      const data = await response.json();
-      setPosts([...posts, data.post]);
+      const postRef = collection(db, "POSTS");
+      const docRef = await addDoc(postRef, newPost);
+      setPosts([...posts, { ...newPost, id: docRef.id }]);
       setTitle("");
       setContent("");
     } catch (err) {
@@ -56,19 +57,25 @@ export default function Posts() {
 
   const handleDeletePost = async (id) => {
     try {
-      const response = await fetch(`/api/posts/${id}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error deleting post:', errorData);
-        alert("Error al eliminar el post: " + errorData.message);
-        return;
-      }
+      const postRef = doc(db, "POSTS", id);
+      await deleteDoc(postRef);
       setPosts(posts.filter(post => post.id !== id));
     } catch (err) {
       console.error("Error al eliminar el post:", err);
       alert("Error al eliminar el post: " + err.message);
+    }
+  };
+
+  const handleToggleComments = async (id, commentsClosed) => {
+    try {
+      const postRef = doc(db, "POSTS", id);
+      await updateDoc(postRef, { commentsClosed: !commentsClosed });
+      setPosts(posts.map(post => 
+        post.id === id ? { ...post, commentsClosed: !commentsClosed } : post
+      ));
+    } catch (err) {
+      console.error("Error al actualizar el estado de los comentarios:", err);
+      alert("Error al actualizar el estado de los comentarios: " + err.message);
     }
   };
 
@@ -153,6 +160,19 @@ export default function Posts() {
                   }}
                 >
                   Eliminar
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleToggleComments(post.id, post.commentsClosed)}
+                  style={{
+                    marginTop: "10px",
+                    marginLeft: "10px",
+                    backgroundColor: post.commentsClosed ? "#ffcc88" : "#88ccff", // Color diferente según el estado de los comentarios
+                    color: "#fff",
+                  }}
+                >
+                  {post.commentsClosed ? "Abrir Comentarios" : "Cerrar Comentarios"}
                 </Button>
               </CardContent>
             </Card>

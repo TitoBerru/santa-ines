@@ -1,11 +1,13 @@
-import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import fs from "fs";
+import path from "path";
+
+const postsFile = path.join(process.cwd(), "src/data/posts.json");
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const { postId, user, content } = body;
-    console.log(body)
+
     if (!postId || !user || !content) {
       return new Response(
         JSON.stringify({ success: false, error: "Todos los campos son obligatorios" }),
@@ -13,28 +15,33 @@ export async function POST(req) {
       );
     }
 
-    // Referencia al documento del post en Firestore
-    const postRef = doc(db, "POSTS", postId);
-    const postSnap = await getDoc(postRef);
+    // Leer el archivo JSON existente
+    let posts = [];
+    if (fs.existsSync(postsFile)) {
+      const data = fs.readFileSync(postsFile, "utf-8");
+      posts = JSON.parse(data);
+    }
 
-    if (!postSnap.exists()) {
+    // Encontrar el post correspondiente
+    const postIndex = posts.findIndex((post) => post.id === postId);
+    if (postIndex === -1) {
       return new Response(
         JSON.stringify({ success: false, error: "Post no encontrado" }),
         { status: 404 }
       );
     }
 
-    // Crear el nuevo comentario
+    // Agregar el nuevo comentario
     const newComment = {
       user,
-      date: new Date(), // Timestamp en lugar de ISO string
+      date: new Date().toISOString(),
       content,
     };
 
-    // Agregar el comentario al array de comentarios en Firestore
-    await updateDoc(postRef, {
-      comments: arrayUnion(newComment)
-    });
+    posts[postIndex].comments.push(newComment);
+
+    // Guardar los cambios en el archivo JSON
+    fs.writeFileSync(postsFile, JSON.stringify(posts, null, 2), "utf-8");
 
     return new Response(JSON.stringify({ success: true, comment: newComment }), { status: 201 });
   } catch (error) {
