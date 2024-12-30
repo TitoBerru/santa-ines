@@ -13,3 +13,6 @@ las cards darle formato de twitter, que sean mas chicas q las actuales, y qu ten
 el resto esta ok.
 Ponemos el logo arriba? como en login?
 
+borrar post: Ahora esta fisico, y si lo implemento logico?
+
+
