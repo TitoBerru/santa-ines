@@ -70,13 +70,14 @@ export default function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("User data to be stored: ", data.user); // Verifica la estructura de los datos del usuario
+        console.log("Linea 73, page.js HOME - User data to be stored: ", data.user); // Verifica la estructura de los datos del usuario
         localStorage.setItem("user", JSON.stringify(data.user));
         login(data.user); // Pasa los datos del usuario al método login
         alert("Inicio de sesión exitoso");
         router.push("/");
       } else {
         setError(data.error);
+        console.log('linea 80 page.js - HOME - ', data.error)
         localStorage.removeItem("user");
       }
     } catch (err) {

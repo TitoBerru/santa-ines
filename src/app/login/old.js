@@ -34,6 +34,7 @@ export default function Login() {
         localStorage.removeItem("user"); // Asegurarse de que no se guarde un usuario no autenticado
       }
     } catch (err) {
+      console.log(err);
       setError("Error al iniciar sesión");
       localStorage.removeItem("user"); // Asegurarse de que no se guarde un usuario no autenticado
     }
@@ -49,6 +50,9 @@ export default function Login() {
         break;
       case 'auth/wrong-password':
         setError('Contraseña incorrecta. Por favor, intenta de nuevo.');
+        break;
+      case 'auth/missing-fields':
+        setError('Faltan campos obligatorios. Por favor, completa todos los campos.');
         break;
       default:
         setError('Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.');
