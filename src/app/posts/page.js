@@ -126,7 +126,7 @@ export default function Posts() {
             fontWeight: "bold",
           }}
         >
-          Agregar Post
+          Crear nuevo Post
         </Button>
       </div>
       <ul className={styles.postsList}>
