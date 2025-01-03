@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, CircularProgress, Box } from '@mui/material';
-import Navbar from '@/components/Navbar';
+import Navbar2 from '@/components/Navbar2';
 import LoginForm from '@/components/LoginForm';
 import PostList from '@/components/PostList';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -45,7 +45,7 @@ export default function Home() {
   return (
     <>
       <ToastContainer />
-      {isAuthenticated && <Navbar />}
+      {isAuthenticated && <Navbar2 />}
       <Container
         maxWidth={!isAuthenticated ? 'sm' : 'lg'}
         style={{
