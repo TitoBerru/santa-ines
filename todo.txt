@@ -16,12 +16,4 @@ Ponemos el logo arriba? como en login?
 borrar post: Ahora esta fisico, y si lo implemento logico?
 
 
-Spinners:
-
-Usuario comun: OK en todo
-Usuario ADMIN : 
-
-- Mientras que esta el spinner que aparezca leyenda validando usuario
-- Cuando hago click en un post, no hay spinner y luego tiene un warning.
-- Cuando agrego comentario tampoco hay spinner y cuando fue exitoso tiene otro warning
-- cuando hago click en HOME en el navbar, aparece el spinner, pero me gustaria un comentario...
+Scrol en comentarios de post

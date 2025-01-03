@@ -6,9 +6,6 @@ import { useRouter } from "next/navigation"; // Cambiado a 'next/navigation'
 import { format } from 'date-fns';
 import CommentIcon from '@mui/icons-material/Comment'; // Importa el icono de comentarios
 
-// Función para truncar el título
-const truncateTitle = (title, maxLength) => { if (title.length <= maxLength) { return title; } return title.substring(0, maxLength) + '...'; };
-
 export default function PostList({ posts }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -61,7 +58,7 @@ export default function PostList({ posts }) {
           >
             <CardContent>
               <Typography variant="h6" component="h3" gutterBottom style={{ color: "#333" }}>
-              {truncateTitle(post.title, 30)}
+                {post.title}
               </Typography>
               <Typography variant="body2" style={{ color: "#555" }}>
                 <strong>Autor:</strong> {post.author}
@@ -80,7 +77,7 @@ export default function PostList({ posts }) {
               alignItems: "center",
               justifyContent: "center"
             }}>
-              <Badge badgeContent={post.comments ? post.comments.length : 0} showZero color="info" >
+              <Badge badgeContent={post.comments ? post.comments.length : 0} showZero color="success"  >
                 <CommentIcon sx={{ color: "#555" }} /> {/* Icono de comentarios */}
               </Badge>
             </Box>

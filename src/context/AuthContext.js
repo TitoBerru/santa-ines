@@ -25,8 +25,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("linea 28, AuthContext, Estado del usuario detectado por Firebase:", currentUser);
-
       if (currentUser) {
         const userDocRef = doc(db, "users", currentUser.uid);
         const userDoc = await getDoc(userDocRef);

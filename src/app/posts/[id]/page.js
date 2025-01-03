@@ -91,7 +91,7 @@ export default function PostDetail() {
         borderRadius: "12px",
         backdropFilter: "blur(10px)",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        marginTop: "50px",
+        marginTop: "100px", // Ajuste del margen superior para el espacio del navbar
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
