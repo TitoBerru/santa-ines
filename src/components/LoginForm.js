@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types'; // Importar PropTypes
+import PropTypes from 'prop-types';
 import { useRouter } from 'next/navigation';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 const LoginForm = ({ setLoading }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false); // Nuevo estado para el spinner y mensaje
+  const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -24,9 +24,9 @@ const LoginForm = ({ setLoading }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Response completa:', response); // Revisa si llega correctamente
+      console.log('Response completa:', response);
       const data = await response.json();
-      console.log('Datos recibidos del backend:', data); // Muestra los datos devueltos
+      console.log('Datos recibidos del backend:', data);
 
       if (response.ok) {
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -42,15 +42,12 @@ const LoginForm = ({ setLoading }) => {
           router.push('/');
         }, 3000);
       } else {
-        toast.error(
-          'Problemas con el correo o contraseña, por favor volver a intentar',
-          {
-            position: 'top-center',
-            autoClose: 3000,
-            hideProgressBar: false,
-            pauseOnHover: false,
-          }
-        );
+        toast.error('Problemas con el correo o contraseña, por favor volver a intentar', {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: false,
+          pauseOnHover: false,
+        });
 
         setTimeout(() => {
           router.push('/');
@@ -58,13 +55,19 @@ const LoginForm = ({ setLoading }) => {
         setLoading(false);
         localStorage.removeItem('user');
         setIsProcessing(false);
-        // setLoading(false);
       }
     } catch (err) {
-      console.log('Error durante el fetch:');
-      setLoginError(data.error);
+      console.log('Error durante el fetch:', err);
+      setError('Error al iniciar sesión');
       localStorage.removeItem('user');
+    } finally {
+      setLoading(false);
+      setIsProcessing(false);
     }
+  };
+
+  const handleSignUpRedirect = () => {
+    router.push('/register');
   };
 
   return (
@@ -131,22 +134,28 @@ const LoginForm = ({ setLoading }) => {
         <Button
           type="submit"
           variant="contained"
-          disabled={isProcessing} // Deshabilitar botón mientras procesa
+          disabled={isProcessing}
           style={{
-            backgroundColor: isProcessing ? '#ccc' : '#88cc88', // Cambiar color si está procesando
+            backgroundColor: isProcessing ? '#ccc' : '#88cc88',
             color: '#fff',
             padding: '10px 20px',
             fontWeight: 'bold',
           }}
         >
-          Iniciar Sesión
+          {isProcessing ? <CircularProgress size={24} /> : "Iniciar Sesión"}
         </Button>
       </form>
+      <Button
+        onClick={handleSignUpRedirect}
+        variant="text"
+        style={{ marginTop: '20px', color: '#88cc88' }}
+      >
+        No tengo cuenta
+      </Button>
     </div>
   );
 };
 
-// Agregar validación de PropTypes
 LoginForm.propTypes = {
   setLoading: PropTypes.func.isRequired,
 };
