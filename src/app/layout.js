@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import PropTypes from 'prop-types'; // Importar PropTypes
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import './globals.css';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { usePathname } from 'next/navigation';
