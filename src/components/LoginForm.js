@@ -32,7 +32,7 @@ const LoginForm = ({ setLoading }) => {
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
         login(data.user);
-        toast.success("Login exitoso, cargando los posts...", {
+        toast.success("Login exitoso, cargando las publicaciones...", {
                   position: "top-center",
                   autoClose: 3000,
                   hideProgressBar: false,

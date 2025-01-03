@@ -76,7 +76,7 @@ export default function PostDetail() {
       <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={4}>
         <CircularProgress />
         <Typography variant="body1" style={{ color: "#555" }}>
-          Cargando post...
+          Cargando publicaciones...
         </Typography>
       </Box>
     );

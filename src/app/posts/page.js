@@ -112,7 +112,7 @@ export default function Posts() {
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
-        Administrar Posts
+        Administrar Publicaciones
       </Typography>
       <div className={styles.formContainer}>
         <TextField
@@ -143,13 +143,13 @@ export default function Posts() {
             }}
             disabled={loadingAddPost}
           >
-            Crear nuevo Post
+            Crear nueva Publicacion
           </Button>
           {loadingAddPost && (
             <Box display="flex" alignItems="center" marginLeft="10px">
               <CircularProgress size={24} style={{ color: "#88cc88" }} />
               <Typography variant="body2" style={{ marginLeft: "10px", color: "#88cc88" }}>
-                Agregando post...
+                Agregando publicacion...
               </Typography>
             </Box>
           )}
@@ -192,7 +192,7 @@ export default function Posts() {
                     <Box display="flex" alignItems="center" marginLeft="10px">
                       <CircularProgress size={24} style={{ color: "#ff8888" }} />
                       <Typography variant="body2" style={{ marginLeft: "10px", color: "#ff8888" }}>
-                        Borrando post...
+                        Borrando publicacion...
                       </Typography>
                     </Box>
                   )}
