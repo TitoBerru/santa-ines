@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Container, Typography, CircularProgress, Box } from "@mui/material";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 import LoginForm from "@/components/LoginForm";
 import PostList from "@/components/PostList";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
