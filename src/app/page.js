@@ -15,9 +15,6 @@ export default function Home() {
   const [posts, setPosts] = useState([]);
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(false);
-
-
-  console.log("linea 19 de page.js Estado actual del contexto: ", { user, isAuthenticated });
   
   useEffect(() => {
 
