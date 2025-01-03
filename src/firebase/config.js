@@ -5,7 +5,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 
-dotenv.config({ path: '.env.local' });
+// dotenv.config({ path: '.env.local' });
 
 
 // console.log('console log de linea 10 de config de firebase',process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
