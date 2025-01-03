@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from "next/navigation";
-import { Container, Typography, TextField, Button } from "@mui/material';
+import { Container, Typography, TextField, Button } from '@mui/material';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export default function Login() {
       });
 
       const data = await response.json();
-
+      console.log('linea 25 app-login-page, valor de data: ', data)
       if (response.ok) {
         // Guardar usuario autenticado en localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
@@ -30,6 +30,7 @@ export default function Login() {
         alert("Inicio de sesión exitoso");
         router.push("/"); // Redirigir a la página principal
       } else {
+        console.log('linea 33 app-login-page ', data.error)
         setError(data.error); // Manejar error personalizado enviado desde el backend
         localStorage.removeItem("user"); // Asegurarse de que no se guarde un usuario no autenticado
       }
@@ -56,7 +57,7 @@ export default function Login() {
       <Typography variant="h4" component="h1" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
         Iniciar Sesión
       </Typography>
-      {error && <Typography variant="body1" style={{ color: 'red', marginBottom: "20px" }}>{error}</Typography>}
+      {error && <Typography variant="body1" style={{ color: 'red', marginBottom: "20px" }}> Error </Typography>}
       <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <TextField
           type="email"

@@ -45,6 +45,7 @@ export async function POST(req) {
 
     // Manejo de errores específicos de Firebase
     let errorMessage;
+    console.log('linea 48, api-users-login-route.js:', error.code)
     switch (error.code) {
       case "auth/invalid-credential":
         errorMessage = "Credenciales inválidas. Por favor, verifica tu información.";
@@ -58,8 +59,9 @@ export async function POST(req) {
       default:
         errorMessage = "Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.";
     }
-
+    console.log('loinea 64 de api-users-login-route.js - ERRORMESSAGE: ',errorMessage)
     return new Response(
+      
       JSON.stringify({
         success: false,
         error: errorMessage,

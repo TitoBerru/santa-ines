@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Container, Typography, Box, TextField, Button, Card, CardContent, Grid } from '@mui/material';
+import { Grid, Container, Typography, Box, TextField, Button, Card, CardContent, CircularProgress } from '@mui/material';
 import { format } from 'date-fns';
 
 export default function PostDetail() {
@@ -13,6 +13,7 @@ export default function PostDetail() {
   const [post, setPost] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState(null);
+  const [loadingComment, setLoadingComment] = useState(false); // Nuevo estado para el spinner
 
   useEffect(() => {
     if (params) {
@@ -37,9 +38,10 @@ export default function PostDetail() {
 
   const handleCommentSubmit = async () => {
     if (!newComment || post.commentsClosed) {
-      alert(post.commentsClosed ? "Los comentarios están cerrados para este post." : "Por favor, ingrese un comentario.");
-      return;
+      return; // No hacemos nada si no hay comentario o si los comentarios están cerrados
     }
+
+    setLoadingComment(true); // Activar el spinner mientras se envía el comentario
 
     try {
       const response = await fetch("/api/posts/comments", {
@@ -54,21 +56,31 @@ export default function PostDetail() {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Comentario agregado");
-        setNewComment("");
+        setNewComment(""); // Limpiar el comentario
         setPost((prevPost) => ({
           ...prevPost,
           comments: [...prevPost.comments, data.comment],
         }));
       } else {
-        alert(data.error);
+        console.error(data.error); // Manejamos el error de forma más limpia
       }
     } catch (err) {
-      alert("Error al agregar el comentario");
+      console.error("Error al agregar el comentario", err);
+    } finally {
+      setLoadingComment(false); // Desactivar el spinner después de procesar el comentario
     }
   };
 
-  if (!post) return <Typography variant="h6" color="textSecondary">Cargando...</Typography>;
+  if (!post) {
+    return (
+      <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={4}>
+        <CircularProgress />
+        <Typography variant="body1" style={{ color: "#555" }}>
+          Cargando post...
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Container
@@ -89,12 +101,12 @@ export default function PostDetail() {
         <strong>Autor:</strong> {post.author}
       </Typography>
       <Typography variant="body1" color="textSecondary" style={{ marginBottom: "20px" }}>
-        <strong>Fecha:</strong> {post.date ? format(new Date(post.date), 'dd/MM/yyyy HH:mm:ss') : 'Fecha no disponible'}
+        <strong>Fecha:</strong> {post.date ? format(new Date(post.date), 'dd/MM/yyyy HH:mm:ss') : 'Hace momentos...'}
       </Typography>
       <Typography variant="body1" style={{ marginBottom: "20px" }}>
         {post.content}
       </Typography>
-      
+
       <Typography variant="h5" component="h3" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
         Comentarios
       </Typography>
@@ -107,14 +119,14 @@ export default function PostDetail() {
                   {comment.content}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" style={{ color: "#777" }}>
-                  Por {comment.user} el {comment.date && comment.date.seconds ? format(new Date(comment.date.seconds * 1000), 'dd/MM/yyyy HH:mm:ss') : 'Fecha no disponible'}
+                  Por {comment.user} - {comment.date && comment.date.seconds ? format(new Date(comment.date.seconds * 1000), 'dd/MM/yyyy HH:mm:ss') : 'Hace momentos...'}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
-      
+
       {user && !post.commentsClosed && (
         <Box>
           <Typography variant="h6" component="h4" gutterBottom style={{ color: "#333", fontWeight: "bold" }}>
@@ -138,8 +150,9 @@ export default function PostDetail() {
               marginRight: "10px",
             }}
             onClick={handleCommentSubmit}
+            disabled={loadingComment} // Desactivar el botón mientras se está enviando el comentario
           >
-            Agregar Comentario
+            {loadingComment ? <CircularProgress size={24} style={{ color: "#fff" }} /> : "Agregar Comentario"}
           </Button>
           <Button
             variant="contained"
@@ -153,7 +166,7 @@ export default function PostDetail() {
           </Button>
         </Box>
       )}
-      
+
       {post.commentsClosed && (
         <Typography variant="body1" color="textSecondary" style={{ marginTop: "20px" }}>
           Los comentarios están cerrados para este post.

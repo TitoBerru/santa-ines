@@ -25,13 +25,20 @@ export const AuthProvider = ({ children }) => {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      console.log("linea 28, AuthContext, Estado del usuario detectado por Firebase:", currentUser);
+
       if (currentUser) {
         const userDocRef = doc(db, "users", currentUser.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
+         
+          console.log("Usuario final establecido en el contexto:", fullUser);
+
           const userData = userDoc.data();
+          console.log("linea 28 authContext, Datos de usuario obtenidos del Firestore:", userData);
           setUser({ ...currentUser, ...userData });
           const fullUser = { uid: currentUser.uid, email: currentUser.email, ...userData};
+          console.log("Line 41 Authcontext Usuario final establecido en el contexto:", fullUser);
           setUser(fullUser);
           setIsAuthenticated(true);
           localStorage.setItem("user", JSON.stringify(fullUser));
@@ -47,6 +54,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
+    console.log("Line 57 Authcontext Datos de usuario que se intentan establecer en el login:", userData);
+
     setUser(userData);
     setIsAuthenticated(true);
     localStorage.setItem("user", JSON.stringify(userData));
