@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types'; // Importar PropTypes
+import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/firebase/config';
+import { auth, db } from './../firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -12,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
@@ -20,31 +21,40 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       } catch (error) {
         console.error('Error al parsear el usuario almacenado:', error);
-        localStorage.removeItem("user");
+        localStorage.removeItem('user');
       }
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const userDocRef = doc(db, "users", currentUser.uid);
+        const userDocRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-         
-          console.log("Usuario final establecido en el contexto:", fullUser);
+          console.log('Usuario final establecido en el contexto:', fullUser);
 
           const userData = userDoc.data();
-          console.log("linea 28 authContext, Datos de usuario obtenidos del Firestore:", userData);
+          console.log(
+            'linea 28 authContext, Datos de usuario obtenidos del Firestore:',
+            userData
+          );
           setUser({ ...currentUser, ...userData });
-          const fullUser = { uid: currentUser.uid, email: currentUser.email, ...userData};
-          console.log("Line 41 Authcontext Usuario final establecido en el contexto:", fullUser);
+          const fullUser = {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            ...userData,
+          };
+          console.log(
+            'Line 41 Authcontext Usuario final establecido en el contexto:',
+            fullUser
+          );
           setUser(fullUser);
           setIsAuthenticated(true);
-          localStorage.setItem("user", JSON.stringify(fullUser));
+          localStorage.setItem('user', JSON.stringify(fullUser));
         }
       } else {
         setUser(null);
         setIsAuthenticated(false);
-        localStorage.removeItem("user");
+        localStorage.removeItem('user');
       }
     });
 
@@ -52,18 +62,21 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    console.log("Line 57 Authcontext Datos de usuario que se intentan establecer en el login:", userData);
+    console.log(
+      'Line 57 Authcontext Datos de usuario que se intentan establecer en el login:',
+      userData
+    );
 
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("user");
-    router.push("/");
+    localStorage.removeItem('user');
+    router.push('/');
   };
 
   return (
@@ -71,6 +84,11 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Agregar validación de PropTypes
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useAuth = () => useContext(AuthContext);

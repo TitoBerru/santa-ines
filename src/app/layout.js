@@ -1,11 +1,11 @@
-"use client";
-
-import Navbar from "@/components/navbar";
-import Footer from "@/components/Footer";
-import "./globals.css";
-import { AuthProvider, useAuth } from "../context/AuthContext";
-import { usePathname } from "next/navigation";
-
+'use client';
+import React from 'react';
+import PropTypes from 'prop-types'; // Importar PropTypes
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import './globals.css';
+import { AuthProvider, useAuth } from '../context/AuthContext';
+import { usePathname } from 'next/navigation';
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
@@ -14,10 +14,8 @@ export default function RootLayout({ children }) {
       <html lang="es">
         <body>
           <div className="page-container">
-          {pathname !== "/" && <Navbar />}
-            <div className="content-wrap">
-              {children}
-            </div>
+            {pathname !== '/' && <Navbar />}
+            <div className="content-wrap">{children}</div>
             <Footer />
           </div>
         </body>
@@ -25,3 +23,8 @@ export default function RootLayout({ children }) {
     </AuthProvider>
   );
 }
+
+// Agregar validación de PropTypes
+RootLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};
