@@ -142,23 +142,34 @@ export default function PostDetail() {
             variant="outlined"
             style={{ backgroundColor: "#ffffff", marginBottom: "20px" }}
           />
-          <Button
-            variant="contained"
-            style={{
-              backgroundColor: "#88cc88", // Color pastel verde
-              color: "#fff",
-              marginRight: "10px",
-            }}
-            onClick={handleCommentSubmit}
-            disabled={loadingComment} // Desactivar el botón mientras se está enviando el comentario
-          >
-            {loadingComment ? <CircularProgress size={24} style={{ color: "#fff" }} /> : "Agregar Comentario"}
-          </Button>
+          <Box display="flex" alignItems="center">
+            <Button
+              variant="contained"
+              style={{
+                backgroundColor: "#88cc88", // Color pastel verde
+                color: "#fff",
+                marginRight: "10px",
+              }}
+              onClick={handleCommentSubmit}
+              disabled={loadingComment} // Desactivar el botón mientras se está enviando el comentario
+            >
+              Agregar Comentario
+            </Button>
+            {loadingComment &&( 
+              <Box display="flex" alignItems="center">
+              <CircularProgress size={24} style={{ color: "#88cc88", marginLeft: "10px" }} /> 
+              <Typography variant="body2" style={{ marginLeft: "10px", color: "#88cc88" }}>
+                 Agregando comentario... 
+                 </Typography>
+                </Box>
+            )}
+          </Box>
           <Button
             variant="contained"
             style={{
               backgroundColor: "#ffcc88", // Color pastel naranja
               color: "#fff",
+              marginTop: "10px",
             }}
             onClick={() => router.push("/")}
           >

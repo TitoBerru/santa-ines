@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from '../../context/AuthContext';
-import { Container, Typography, TextField, Button, Card, CardContent } from "@mui/material";
+import { Container, Typography, TextField, Button, Card, CardContent, CircularProgress, Box } from "@mui/material";
 import styles from './Posts.module.css';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore"; 
 import { db } from '../../firebase/config';
@@ -12,6 +12,9 @@ export default function Posts() {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [loadingAddPost, setLoadingAddPost] = useState(false);
+  const [loadingDeletePost, setLoadingDeletePost] = useState({});
+  const [loadingToggleComments, setLoadingToggleComments] = useState({});
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -34,6 +37,8 @@ export default function Posts() {
       return;
     }
 
+    setLoadingAddPost(true);
+
     const newPost = {
       title,
       content,
@@ -52,10 +57,14 @@ export default function Posts() {
     } catch (err) {
       console.error("Error al agregar el post:", err);
       alert("Error al agregar el post: " + err.message);
+    } finally {
+      setLoadingAddPost(false);
     }
   };
 
   const handleDeletePost = async (id) => {
+    setLoadingDeletePost((prev) => ({ ...prev, [id]: true }));
+
     try {
       const postRef = doc(db, "POSTS", id);
       await deleteDoc(postRef);
@@ -63,10 +72,14 @@ export default function Posts() {
     } catch (err) {
       console.error("Error al eliminar el post:", err);
       alert("Error al eliminar el post: " + err.message);
+    } finally {
+      setLoadingDeletePost((prev) => ({ ...prev, [id]: false }));
     }
   };
 
   const handleToggleComments = async (id, commentsClosed) => {
+    setLoadingToggleComments((prev) => ({ ...prev, [id]: true }));
+
     try {
       const postRef = doc(db, "POSTS", id);
       await updateDoc(postRef, { commentsClosed: !commentsClosed });
@@ -76,6 +89,8 @@ export default function Posts() {
     } catch (err) {
       console.error("Error al actualizar el estado de los comentarios:", err);
       alert("Error al actualizar el estado de los comentarios: " + err.message);
+    } finally {
+      setLoadingToggleComments((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -116,18 +131,29 @@ export default function Posts() {
           rows={4}
           style={{ backgroundColor: "#fff", marginBottom: "20px", width: "100%" }}
         />
-        <Button
-          variant="contained"
-          onClick={handleAddPost}
-          style={{
-            backgroundColor: "#88cc88", // Color pastel verde
-            color: "#fff",
-            padding: "10px 20px",
-            fontWeight: "bold",
-          }}
-        >
-          Crear nuevo Post
-        </Button>
+        <Box display="flex" alignItems="center" justifyContent="center">
+          <Button
+            variant="contained"
+            onClick={handleAddPost}
+            style={{
+              backgroundColor: "#88cc88", // Color pastel verde
+              color: "#fff",
+              padding: "10px 20px",
+              fontWeight: "bold",
+            }}
+            disabled={loadingAddPost}
+          >
+            Crear nuevo Post
+          </Button>
+          {loadingAddPost && (
+            <Box display="flex" alignItems="center" marginLeft="10px">
+              <CircularProgress size={24} style={{ color: "#88cc88" }} />
+              <Typography variant="body2" style={{ marginLeft: "10px", color: "#88cc88" }}>
+                Agregando post...
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </div>
       <ul className={styles.postsList}>
         {posts.map(post => (
@@ -149,18 +175,28 @@ export default function Posts() {
                 <Typography variant="body1" style={{ color: "#555" }}>
                   {post.content}
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleDeletePost(post.id)}
-                  style={{
-                    marginTop: "10px",
-                    backgroundColor: "#ff8888", // Color pastel rojo
-                    color: "#fff",
-                  }}
-                >
-                  Eliminar
-                </Button>
+                <Box display="flex" alignItems="center" justifyContent="center" marginTop="10px">
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleDeletePost(post.id)}
+                    style={{
+                      backgroundColor: "#ff8888", // Color pastel rojo
+                      color: "#fff",
+                    }}
+                    disabled={loadingDeletePost[post.id]}
+                  >
+                    Eliminar
+                  </Button>
+                  {loadingDeletePost[post.id] && (
+                    <Box display="flex" alignItems="center" marginLeft="10px">
+                      <CircularProgress size={24} style={{ color: "#ff8888" }} />
+                      <Typography variant="body2" style={{ marginLeft: "10px", color: "#ff8888" }}>
+                        Borrando post...
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
                 <Button
                   variant="contained"
                   color="primary"
@@ -171,8 +207,12 @@ export default function Posts() {
                     backgroundColor: post.commentsClosed ? "#ffcc88" : "#88ccff", // Color diferente según el estado de los comentarios
                     color: "#fff",
                   }}
+                  disabled={loadingToggleComments[post.id]}
                 >
                   {post.commentsClosed ? "Abrir Comentarios" : "Cerrar Comentarios"}
+                  {loadingToggleComments[post.id] && (
+                    <CircularProgress size={20} style={{ marginLeft: "10px", color: "#fff" }} />
+                  )}
                 </Button>
               </CardContent>
             </Card>
