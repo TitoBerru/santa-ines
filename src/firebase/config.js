@@ -1,5 +1,5 @@
 
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
