@@ -107,7 +107,7 @@ export default function Posts() {
         backgroundColor: "rgba(240, 255, 240, 0.9)", // Fondo pastel con transparencia
         borderRadius: "18px",
         backdropFilter: "blur(10px)",
-        marginTop: "50px",
+        marginTop: "100px",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
       }}
     >

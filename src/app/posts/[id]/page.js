@@ -6,35 +6,44 @@ import { Grid, Container, Typography, Box, TextField, Button, Card, CardContent,
 import { format } from 'date-fns';
 
 export default function PostDetail() {
-  const params = useParams();
   const router = useRouter();
-  const { id } = params;
+  const params = useParams();
 
   const [post, setPost] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState(null);
   const [loadingComment, setLoadingComment] = useState(false); // Nuevo estado para el spinner
+  const [loadingPost, setLoadingPost] = useState(true); // Nuevo estado para la carga del post
 
   useEffect(() => {
-    if (params) {
+    const fetchPost = async () => {
       const storedUser = localStorage.getItem("user");
       if (!storedUser) {
         router.push("/login");
+        return;
       } else {
         setUser(JSON.parse(storedUser));
-        fetch(`/api/posts/${id}`)
-          .then((res) => res.json())
-          .then((data) => {
-            // Convierte el Timestamp a una fecha de JavaScript
-            if (data.date && data.date.seconds) {
-              data.date = new Date(data.date.seconds * 1000);
-            }
-            setPost(data);
-          })
-          .catch((err) => console.error("Error fetching post:", err));
       }
-    }
-  }, [params, id, router]);
+
+      if (params.id) {
+        try {
+          const response = await fetch(`/api/posts/${params.id}`);
+          const data = await response.json();
+          // Convierte el Timestamp a una fecha de JavaScript
+          if (data.date && data.date.seconds) {
+            data.date = new Date(data.date.seconds * 1000);
+          }
+          setPost(data);
+        } catch (err) {
+          console.error("Error fetching post:", err);
+        } finally {
+          setLoadingPost(false);
+        }
+      }
+    };
+
+    fetchPost();
+  }, [params.id, router]);
 
   const handleCommentSubmit = async () => {
     if (!newComment || post.commentsClosed) {
@@ -71,12 +80,22 @@ export default function PostDetail() {
     }
   };
 
-  if (!post) {
+  if (loadingPost) {
     return (
       <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={4}>
         <CircularProgress />
         <Typography variant="body1" style={{ color: "#555" }}>
           Cargando publicaciones...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!post) {
+    return (
+      <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={4}>
+        <Typography variant="body1" style={{ color: "#555" }}>
+          Publicación no encontrada...
         </Typography>
       </Box>
     );

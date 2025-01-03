@@ -57,7 +57,7 @@ export default function Home() {
           borderRadius: "18px",
           backdropFilter: "blur(10px)",
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
-          marginTop: "50px",
+          marginTop: "100px",
         }}
       >
         {loading ? (
